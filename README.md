@@ -52,3 +52,15 @@ Todavía no incluye OCR, captura de pantalla, grabador de secuencias ni editor c
 7. Ejecutor con historial y diagnóstico por paso.
 
 Secu solo ejecutará automatizaciones que el usuario configure y active en su propio dispositivo.
+
+
+## Compilar APK sin entorno local
+
+El repositorio incluye el workflow manual **Build debug APK**.
+
+1. Abre la pestaña **Actions** del repositorio.
+2. Selecciona **Build debug APK**.
+3. Pulsa **Run workflow**.
+4. Al finalizar, descarga el artefacto **secu-debug-apk**.
+
+El workflow solo se ejecuta manualmente; no se dispara con cada push.

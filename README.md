@@ -4,63 +4,48 @@ Secu es una aplicación Android para crear y ejecutar automatizaciones sobre la 
 
 ## Estado actual
 
-Prototipo **0.1.0**. Esta primera base valida el núcleo de automatización mediante AccessibilityService.
+Versión **0.2.0**. El núcleo de accesibilidad ya fue validado en un Samsung Galaxy S25 Ultra con Android 16.
 
-Actualmente puede:
+Secu ahora permite construir una secuencia local de pasos, reordenarla, eliminar pasos y ejecutarla de principio a fin mediante `AccessibilityService`.
 
-- registrar un servicio de accesibilidad;
-- detectar cambios de aplicación/ventana;
-- leer el árbol accesible de la pantalla activa;
-- buscar un elemento por texto o descripción;
-- localizar un ancestro pulsable;
-- ejecutar ACTION_CLICK;
-- mantener un pequeño registro local de diagnóstico;
-- dejar una acción armada mientras se cambia manualmente a otra aplicación.
+### Pasos disponibles
 
-Todavía no incluye OCR, captura de pantalla, grabador de secuencias ni editor completo de automatizaciones.
+- **Esperar texto**: pausa hasta que aparezca un texto o descripción accesible.
+- **Pulsar texto**: busca el texto y pulsa el nodo accesible correspondiente.
+- **Esperar tiempo**: espera una cantidad de milisegundos.
+- **Volver atrás**: ejecuta la acción global Atrás.
+- **Escribir texto**: escribe en el campo editable enfocado; si no hay uno enfocado, usa el primer campo editable disponible.
+- **Abrir app**: lanza una aplicación por su nombre de paquete, por ejemplo `com.google.android.calculator`.
+
+La secuencia y el registro se guardan localmente en el dispositivo.
 
 ## Configuración
 
-- Kotlin
-- Android Gradle Plugin 9.4.0
-- compileSdk = 36
-- targetSdk = 36
-- minSdk = 26
+- Android 16 / API 36 como objetivo actual
+- `compileSdk = 36`
+- `targetSdk = 36`
+- `minSdk = 26`
 - JDK 17
-- package: com.barccelo.secu
+- package: `com.barccelo.secu`
 
-## Primera prueba
+## Uso
 
-1. Instala y abre Secu.
-2. Pulsa **Abrir ajustes de accesibilidad**.
-3. Activa **Secu · Automatización**.
-4. Regresa a Secu.
-5. Escribe el texto de un botón visible en otra app, por ejemplo Aceptar.
-6. Pulsa **Armar: buscar y pulsar**.
-7. Abre manualmente la aplicación objetivo.
-8. Cuando Secu encuentre el texto, intentará pulsar el elemento automáticamente.
-9. Regresa a Secu y revisa **Registro**.
+1. Instala Secu.
+2. Activa **Secu · Automatización** en los ajustes de accesibilidad.
+3. Añade pasos en la pantalla principal.
+4. Usa ↑ y ↓ para cambiar el orden.
+5. Pulsa **Ejecutar secuencia**.
+6. Revisa **Registro** para ver qué hizo cada paso.
 
-## Próximos pasos
+## Build
 
-1. Inspector completo del árbol de accesibilidad.
-2. Motor de pasos: esperar, pulsar, escribir, volver, swipe y pausa.
-3. Apertura de aplicaciones como parte de una secuencia.
-4. Condiciones y variables/tokens.
-5. Grabador de acciones.
-6. Captura de pantalla + OCR como fallback para elementos no accesibles.
-7. Ejecutor con historial y diagnóstico por paso.
+Cada cambio integrado en `main` ejecuta el workflow **Build debug APK**. El artefacto generado se llama `secu-debug-apk`.
 
-Secu solo ejecutará automatizaciones que el usuario configure y active en su propio dispositivo.
+## Próximos bloques
 
-
-## Compilar APK sin entorno local
-
-El repositorio incluye el workflow manual **Build debug APK**.
-
-1. Abre la pestaña **Actions** del repositorio.
-2. Selecciona **Build debug APK**.
-3. Pulsa **Run workflow**.
-4. Al finalizar, descarga el artefacto **secu-debug-apk**.
-
-El workflow solo se ejecuta manualmente; no se dispara con cada push.
+- selector visual de aplicaciones instaladas para no escribir paquetes manualmente;
+- toque por coordenadas y gestos;
+- condiciones y ramas;
+- variables/tokens;
+- grabador de acciones;
+- captura de pantalla + OCR como fallback cuando Accessibility no exponga un elemento.

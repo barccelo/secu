@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Secu</string>
+    <string name="accessibility_service_label">Secu · Automatización</string>
+    <string name="accessibility_service_description">Permite a Secu leer elementos visibles de otras aplicaciones y ejecutar acciones de automatización que el usuario configure.</string>
+</resources>

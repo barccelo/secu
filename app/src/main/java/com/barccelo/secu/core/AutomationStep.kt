@@ -5,6 +5,9 @@ import java.util.UUID
 enum class StepType(val label: String) {
     WAIT_TEXT("Esperar texto"),
     CLICK_TEXT("Pulsar texto"),
+    CLICK_FIELD("Pulsar campo"),
+    INPUT_FIELD("Escribir en campo"),
+    TAP_COORDINATE("Pulsar coordenada"),
     DELAY("Esperar tiempo"),
     BACK("Volver atrás"),
     INPUT_TEXT("Escribir texto"),
@@ -24,6 +27,9 @@ data class AutomationStep(
         return when (type) {
             StepType.WAIT_TEXT -> "Esperar hasta ver “$value”"
             StepType.CLICK_TEXT -> "Pulsar “$value”"
+            StepType.CLICK_FIELD -> "Pulsar campo: $value"
+            StepType.INPUT_FIELD -> "Escribir en campo: ${value.substringBefore("->").trim()}"
+            StepType.TAP_COORDINATE -> "Pulsar coordenada: $value"
             StepType.DELAY -> "Esperar ${value.toLongOrNull()?.coerceAtLeast(0L) ?: 0L} ms"
             StepType.BACK -> "Volver atrás"
             StepType.INPUT_TEXT -> "Escribir “$value”"

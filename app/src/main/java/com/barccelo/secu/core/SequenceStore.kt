@@ -44,13 +44,9 @@ object SequenceStore {
         prefs(context).edit().putString(KEY_STEPS, array.toString()).apply()
     }
 
-    fun isRunning(context: Context): Boolean {
-        return prefs(context).getBoolean(KEY_RUNNING, false)
-    }
+    fun isRunning(context: Context): Boolean = prefs(context).getBoolean(KEY_RUNNING, false)
 
-    fun currentIndex(context: Context): Int {
-        return prefs(context).getInt(KEY_INDEX, 0)
-    }
+    fun currentIndex(context: Context): Int = prefs(context).getInt(KEY_INDEX, 0)
 
     fun currentStep(context: Context): AutomationStep? {
         if (!isRunning(context)) return null
@@ -60,43 +56,38 @@ object SequenceStore {
     fun start(context: Context): Boolean {
         val steps = loadSteps(context)
         if (steps.isEmpty()) return false
-
-        prefs(context).edit()
-            .putBoolean(KEY_RUNNING, true)
-            .putInt(KEY_INDEX, 0)
-            .apply()
+        prefs(context).edit().putBoolean(KEY_RUNNING, true).putInt(KEY_INDEX, 0).apply()
         return true
     }
 
     fun stop(context: Context) {
-        prefs(context).edit()
-            .putBoolean(KEY_RUNNING, false)
-            .apply()
+        prefs(context).edit().putBoolean(KEY_RUNNING, false).apply()
     }
 
-    fun advance(context: Context): Boolean {
-        val next = currentIndex(context) + 1
-        val size = loadSteps(context).size
+    fun advance(context: Context): Boolean = advanceBy(context, 1)
 
-        return if (next >= size) {
-            prefs(context).edit()
-                .putInt(KEY_INDEX, size)
-                .putBoolean(KEY_RUNNING, false)
-                .apply()
-            false
-        } else {
-            prefs(context).edit()
-                .putInt(KEY_INDEX, next)
-                .apply()
-            true
+    fun advanceBy(context: Context, delta: Int): Boolean {
+        val size = loadSteps(context).size
+        val target = currentIndex(context) + delta
+
+        return when {
+            target >= size -> {
+                prefs(context).edit().putInt(KEY_INDEX, size).putBoolean(KEY_RUNNING, false).apply()
+                false
+            }
+            target < 0 -> {
+                prefs(context).edit().putInt(KEY_INDEX, 0).apply()
+                true
+            }
+            else -> {
+                prefs(context).edit().putInt(KEY_INDEX, target).apply()
+                true
+            }
         }
     }
 
     fun reset(context: Context) {
-        prefs(context).edit()
-            .putBoolean(KEY_RUNNING, false)
-            .putInt(KEY_INDEX, 0)
-            .apply()
+        prefs(context).edit().putBoolean(KEY_RUNNING, false).putInt(KEY_INDEX, 0).apply()
     }
 
     private fun prefs(context: Context) =

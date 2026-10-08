@@ -8,7 +8,11 @@ enum class StepType(val label: String) {
     DELAY("Esperar tiempo"),
     BACK("Volver atrás"),
     INPUT_TEXT("Escribir texto"),
-    OPEN_APP("Abrir app")
+    OPEN_APP("Abrir app"),
+    READ_NUMBER("Leer número"),
+    CALCULATE("Calcular"),
+    IF_NUMERIC("IF numérico"),
+    WRITE_VARIABLE("Escribir variable")
 }
 
 data class AutomationStep(
@@ -24,6 +28,10 @@ data class AutomationStep(
             StepType.BACK -> "Volver atrás"
             StepType.INPUT_TEXT -> "Escribir “$value”"
             StepType.OPEN_APP -> "Abrir app: $value"
+            StepType.READ_NUMBER -> "Leer número: $value"
+            StepType.CALCULATE -> "Calcular: $value"
+            StepType.IF_NUMERIC -> "IF: $value"
+            StepType.WRITE_VARIABLE -> "Escribir variable: $value"
         }
     }
 }

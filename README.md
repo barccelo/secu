@@ -4,48 +4,42 @@ Secu es una aplicación Android para crear y ejecutar automatizaciones sobre la 
 
 ## Estado actual
 
-Versión **0.2.0**. El núcleo de accesibilidad ya fue validado en un Samsung Galaxy S25 Ultra con Android 16.
-
-Secu ahora permite construir una secuencia local de pasos, reordenarla, eliminar pasos y ejecutarla de principio a fin mediante `AccessibilityService`.
+Versión **0.3.0**. Además del motor de secuencias, Secu incorpora variables numéricas, lectura de valores accesibles en pantalla, fórmulas, comparaciones y escritura de resultados.
 
 ### Pasos disponibles
 
-- **Esperar texto**: pausa hasta que aparezca un texto o descripción accesible.
-- **Pulsar texto**: busca el texto y pulsa el nodo accesible correspondiente.
-- **Esperar tiempo**: espera una cantidad de milisegundos.
-- **Volver atrás**: ejecuta la acción global Atrás.
-- **Escribir texto**: escribe en el campo editable enfocado; si no hay uno enfocado, usa el primer campo editable disponible.
-- **Abrir app**: lanza una aplicación por su nombre de paquete, por ejemplo `com.google.android.calculator`.
+- **Esperar texto**: espera un texto o descripción accesible.
+- **Pulsar texto**: busca y pulsa un elemento.
+- **Esperar tiempo**: espera milisegundos.
+- **Volver atrás**.
+- **Escribir texto**: escribe en el campo editable activo.
+- **Abrir app**: abre una aplicación por package name.
+- **Leer número**: lee un número próximo a una etiqueta y lo guarda. Sintaxis: `Etiqueta -> variable`.
+- **Calcular**: evalúa una fórmula y guarda el resultado. Sintaxis: `resultado = min(a, b)`. Admite `+`, `-`, `*`, `/`, paréntesis, `min()` y `max()`.
+- **IF numérico**: compara expresiones y aplica un salto adicional. Sintaxis: `a >= b ? +0 : +1`. Admite `>`, `<`, `>=`, `<=`, `==`, `!=`.
+- **Escribir variable**: escribe el valor de una variable en el campo editable activo.
 
-La secuencia y el registro se guardan localmente en el dispositivo.
+## Lectura numérica
 
-## Configuración
+El lector usa primero el árbol de accesibilidad de Android. Busca la etiqueta indicada y revisa los elementos accesibles próximos antes de ampliar la búsqueda a los siguientes elementos visibles. Reconoce formatos habituales como `1234,56`, `1.234,56`, `1,234.56` y números enteros.
 
-- Android 16 / API 36 como objetivo actual
-- `compileSdk = 36`
-- `targetSdk = 36`
-- `minSdk = 26`
-- JDK 17
-- package: `com.barccelo.secu`
+Las variables se conservan localmente hasta que se limpian desde la aplicación. Las operaciones se realizan con `BigDecimal` para evitar errores de coma flotante.
 
-## Uso
+## Rendimiento
 
-1. Instala Secu.
-2. Activa **Secu · Automatización** en los ajustes de accesibilidad.
-3. Añade pasos en la pantalla principal.
-4. Usa ↑ y ↓ para cambiar el orden.
-5. Pulsa **Ejecutar secuencia**.
-6. Revisa **Registro** para ver qué hizo cada paso.
+La ejecución continúa siendo dirigida por eventos de Accessibility. Los pasos internos avanzan con una demora mínima de 40 ms; cuando una pantalla todavía no está lista, Secu espera el siguiente evento de cambio de contenido en lugar de usar polling lento.
 
 ## Build
 
-Cada cambio integrado en `main` ejecuta el workflow **Build debug APK**. El artefacto generado se llama `secu-debug-apk`.
+Cada cambio integrado en `main` ejecuta automáticamente **Build debug APK**. El artefacto generado se llama `secu-debug-apk`.
 
 ## Próximos bloques
 
-- selector visual de aplicaciones instaladas para no escribir paquetes manualmente;
+- múltiples secuencias nombradas y llamadas entre secuencias;
+- perfiles de acceso protegidos;
+- selector visual de campos/elementos;
 - toque por coordenadas y gestos;
-- condiciones y ramas;
-- variables/tokens;
+- condiciones por presencia de texto;
+- loops y reanudación de una secuencia después de otra;
 - grabador de acciones;
-- captura de pantalla + OCR como fallback cuando Accessibility no exponga un elemento.
+- OCR como fallback cuando Accessibility no exponga un elemento.

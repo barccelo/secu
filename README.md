@@ -19,27 +19,16 @@ Versión **0.3.0**. Además del motor de secuencias, Secu incorpora variables nu
 - **IF numérico**: compara expresiones y aplica un salto adicional. Sintaxis: `a >= b ? +0 : +1`. Admite `>`, `<`, `>=`, `<=`, `==`, `!=`.
 - **Escribir variable**: escribe el valor de una variable en el campo editable activo.
 
-## Lectura numérica
+## Firma persistente y actualizaciones
 
-El lector usa primero el árbol de accesibilidad de Android. Busca la etiqueta indicada y revisa los elementos accesibles próximos antes de ampliar la búsqueda a los siguientes elementos visibles. Reconoce formatos habituales como `1234,56`, `1.234,56`, `1,234.56` y números enteros.
+Los APK de GitHub Actions deben usar siempre la misma clave de firma. El workflow ahora exige el secret de repositorio `SECU_SIGNING_BUNDLE_BASE64`; si falta, el build se detiene antes de generar un APK instalable para evitar producir una versión con una firma distinta.
 
-Las variables se conservan localmente hasta que se limpian desde la aplicación. Las operaciones se realizan con `BigDecimal` para evitar errores de coma flotante.
+El bundle de firma contiene `secu-upload.jks` y `signing.properties`. Ese material no debe subirse al repositorio.
 
-## Rendimiento
+El `versionCode` se toma automáticamente de `github.run_number`, por lo que cada build de Actions tiene un código de versión creciente sin editar Gradle manualmente.
 
-La ejecución continúa siendo dirigida por eventos de Accessibility. Los pasos internos avanzan con una demora mínima de 40 ms; cuando una pantalla todavía no está lista, Secu espera el siguiente evento de cambio de contenido en lugar de usar polling lento.
+Las compilaciones anteriores a esta configuración usaban claves debug temporales de runners distintos. Por ello, la primera instalación que adopte la nueva firma persistente requiere reemplazar la versión antigua una sola vez. Después, los APK futuros con la misma firma se instalan como actualización.
 
 ## Build
 
 Cada cambio integrado en `main` ejecuta automáticamente **Build debug APK**. El artefacto generado se llama `secu-debug-apk`.
-
-## Próximos bloques
-
-- múltiples secuencias nombradas y llamadas entre secuencias;
-- perfiles de acceso protegidos;
-- selector visual de campos/elementos;
-- toque por coordenadas y gestos;
-- condiciones por presencia de texto;
-- loops y reanudación de una secuencia después de otra;
-- grabador de acciones;
-- OCR como fallback cuando Accessibility no exponga un elemento.

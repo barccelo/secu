@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SECU_VERSION_CODE: ${{ github.run_number }}
 
     steps:
       - name: Checkout
@@ -31,6 +33,38 @@ jobs:
         with:
           gradle-version: "9.6.0"
           cache-provider: basic
+
+      - name: Prepare persistent signing key
+        env:
+          SECU_SIGNING_BUNDLE_BASE64: ${{ secrets.SECU_SIGNING_BUNDLE_BASE64 }}
+        run: |
+          if [ -z "$SECU_SIGNING_BUNDLE_BASE64" ]; then
+            echo "::error::Missing repository secret SECU_SIGNING_BUNDLE_BASE64."
+            echo "::error::Secu refuses to build an installable APK with a temporary signing key."
+            exit 1
+          fi
+
+          SIGNING_DIR="$RUNNER_TEMP/secu-signing"
+          mkdir -p "$SIGNING_DIR"
+          printf "%s" "$SECU_SIGNING_BUNDLE_BASE64" | base64 --decode > "$SIGNING_DIR/bundle.tar.gz"
+          tar -xzf "$SIGNING_DIR/bundle.tar.gz" -C "$SIGNING_DIR"
+
+          test -s "$SIGNING_DIR/secu-upload.jks"
+          test -s "$SIGNING_DIR/signing.properties"
+
+          echo "SECU_KEYSTORE_PATH=$SIGNING_DIR/secu-upload.jks" >> "$GITHUB_ENV"
+          echo "SECU_SIGNING_PROPERTIES=$SIGNING_DIR/signing.properties" >> "$GITHUB_ENV"
+
+      - name: Validate signing key
+        run: |
+          STORE_PASS="$(sed -n 's/^storePassword=//p' "$SECU_SIGNING_PROPERTIES")"
+          KEY_ALIAS="$(sed -n 's/^keyAlias=//p' "$SECU_SIGNING_PROPERTIES")"
+          test -n "$STORE_PASS"
+          test -n "$KEY_ALIAS"
+          keytool -list \
+            -keystore "$SECU_KEYSTORE_PATH" \
+            -storepass "$STORE_PASS" \
+            -alias "$KEY_ALIAS" >/dev/null
 
       - name: Build debug APK
         run: gradle :app:assembleDebug --stacktrace --no-daemon

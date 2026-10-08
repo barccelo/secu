@@ -1,5 +1,22 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
+}
+
+val ciVersionCode = System.getenv("SECU_VERSION_CODE")?.toIntOrNull() ?: 3
+val signingPropertiesPath = System.getenv("SECU_SIGNING_PROPERTIES")
+val signingKeystorePath = System.getenv("SECU_KEYSTORE_PATH")
+val signingProperties = Properties()
+
+val persistentSigningAvailable =
+    !signingPropertiesPath.isNullOrBlank() &&
+        !signingKeystorePath.isNullOrBlank() &&
+        file(signingPropertiesPath).isFile &&
+        file(signingKeystorePath).isFile
+
+if (persistentSigningAvailable) {
+    file(signingPropertiesPath!!).inputStream().use(signingProperties::load)
 }
 
 android {
@@ -10,8 +27,27 @@ android {
         applicationId = "com.barccelo.secu"
         minSdk = 26
         targetSdk = 36
-        versionCode = 3
+        versionCode = ciVersionCode
         versionName = "0.3.0"
+    }
+
+    signingConfigs {
+        if (persistentSigningAvailable) {
+            create("persistent") {
+                storeFile = file(signingKeystorePath!!)
+                storePassword = signingProperties.getProperty("storePassword")
+                keyAlias = signingProperties.getProperty("keyAlias")
+                keyPassword = signingProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
+    buildTypes {
+        getByName("debug") {
+            if (persistentSigningAvailable) {
+                signingConfig = signingConfigs.getByName("persistent")
+            }
+        }
     }
 
     compileOptions {

@@ -8,3 +8,9 @@
 .externalNativeBuild
 .cxx
 app/build
+
+# Never commit Secu signing material
+*.jks
+*.keystore
+signing.properties
+.signing/

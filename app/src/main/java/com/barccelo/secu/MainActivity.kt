@@ -62,7 +62,7 @@ class MainActivity : Activity() {
         val content = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(20), dp(24), dp(20), dp(32)) }
 
         content.addView(TextView(this).apply { text = "Secu"; textSize = 32f; setTypeface(typeface, Typeface.BOLD) })
-        content.addView(TextView(this).apply { text = "Motor de secuencias · 0.4"; textSize = 16f; setPadding(0, dp(4), 0, dp(20)) })
+        content.addView(TextView(this).apply { text = "Motor de secuencias · 0.4.1"; textSize = 16f; setPadding(0, dp(4), 0, dp(20)) })
         statusText = TextView(this).apply { textSize = 16f; setTypeface(typeface, Typeface.BOLD); setPadding(0, 0, 0, dp(8)) }
         content.addView(statusText)
         content.addView(Button(this).apply { text = "Abrir ajustes de accesibilidad"; isAllCaps = false; setOnClickListener { startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) } })
@@ -168,7 +168,10 @@ class MainActivity : Activity() {
         if (!isAccessibilityServiceEnabled() || !SecuAccessibilityService.isConnected()) { Toast.makeText(this, "Activa primero el servicio de accesibilidad de Secu.", Toast.LENGTH_LONG).show(); return }
         if (steps.isEmpty()) { Toast.makeText(this, "Añade al menos un paso.", Toast.LENGTH_SHORT).show(); return }
         SecuAccessibilityService.cancelPendingWork(); SequenceStore.reset(this); SequenceStore.saveSteps(this, steps); SequenceStore.start(this)
-        AutomationStore.appendLog(this, "Secuencia iniciada · ${steps.size} pasos."); SecuAccessibilityService.requestProcess(); refreshUi()
+        AutomationStore.appendLog(this, "Secuencia iniciada · ${steps.size} pasos.")
+        Toast.makeText(this, "Secuencia iniciada. Volviendo a la pantalla objetivo.", Toast.LENGTH_SHORT).show()
+        moveTaskToBack(true)
+        SecuAccessibilityService.requestProcess()
     }
     private fun stopExecution() { SecuAccessibilityService.cancelPendingWork(); SequenceStore.stop(this) }
     private fun refreshUi() {

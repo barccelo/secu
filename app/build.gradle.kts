@@ -2,7 +2,7 @@ import java.util.Properties
 
 plugins { id("com.android.application") }
 
-val ciVersionCode = System.getenv("SECU_VERSION_CODE")?.toIntOrNull() ?: 4
+val ciVersionCode = System.getenv("SECU_VERSION_CODE")?.toIntOrNull() ?: 5
 val signingPropertiesPath = System.getenv("SECU_SIGNING_PROPERTIES")
 val signingKeystorePath = System.getenv("SECU_KEYSTORE_PATH")
 val signingProperties = Properties()
@@ -17,7 +17,7 @@ android {
         minSdk = 26
         targetSdk = 36
         versionCode = ciVersionCode
-        versionName = "0.4.0"
+        versionName = "0.4.1"
     }
     signingConfigs {
         if (persistentSigningAvailable) create("persistent") {

@@ -81,6 +81,12 @@ class SecuAccessibilityService : AccessibilityService() {
         if (processing || gestureInProgress || !SequenceStore.isRunning(this)) return
         val step = SequenceStore.currentStep(this) ?: return
         val index = SequenceStore.currentIndex(this)
+
+        if (stepNeedsExternalWindow(step.type)) {
+            val activePackage = rootInActiveWindow?.packageName?.toString()
+            if (activePackage.isNullOrBlank() || activePackage == packageName) return
+        }
+
         processing = true
 
         try {
@@ -251,7 +257,7 @@ class SecuAccessibilityService : AccessibilityService() {
         val accepted = dispatchGesture(gesture, object : GestureResultCallback() {
             override fun onCompleted(gestureDescription: GestureDescription?) {
                 gestureInProgress = false
-                completeStep(successMessage)
+                completeStep(successMessage, resumeDelayMs = 120L)
             }
             override fun onCancelled(gestureDescription: GestureDescription?) {
                 gestureInProgress = false
@@ -298,12 +304,31 @@ class SecuAccessibilityService : AccessibilityService() {
         removePointCaptureOverlay()
     }
 
-    private fun completeStep(message: String, extraSkip: Int = 0) {
+    private fun completeStep(message: String, extraSkip: Int = 0, resumeDelayMs: Long = 40L) {
         cancelScheduledDelay()
         val stepNumber = SequenceStore.currentIndex(this) + 1
         AutomationStore.appendLog(this, "Paso $stepNumber OK · $message")
-        if (SequenceStore.advanceBy(this, 1 + extraSkip)) handler.postDelayed({ processCurrentStep() }, 40L)
+        if (SequenceStore.advanceBy(this, 1 + extraSkip)) handler.postDelayed({ processCurrentStep() }, resumeDelayMs)
         else AutomationStore.appendLog(this, "Secuencia completada.")
+    }
+
+    private fun stepNeedsExternalWindow(type: StepType): Boolean {
+        return when (type) {
+            StepType.WAIT_TEXT,
+            StepType.CLICK_TEXT,
+            StepType.CLICK_FIELD,
+            StepType.INPUT_FIELD,
+            StepType.TAP_COORDINATE,
+            StepType.BACK,
+            StepType.INPUT_TEXT,
+            StepType.READ_NUMBER,
+            StepType.WRITE_VARIABLE -> true
+
+            StepType.DELAY,
+            StepType.OPEN_APP,
+            StepType.CALCULATE,
+            StepType.IF_NUMERIC -> false
+        }
     }
 
     private fun failStep(message: String) {
